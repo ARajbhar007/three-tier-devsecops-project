@@ -12,7 +12,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 25%
+      maxUnavailable: 1 # Changed from 25% to 1 for better predictability with 2 replicas
   selector: 
     matchLabels:
       role: api
@@ -23,13 +23,21 @@ spec:
     spec:
       imagePullSecrets:
       - name: ecr-registry-secret
+      
+      # FIX 1: The InitContainer keeps the backend from starting until Postgres is reachable
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -zv postgres-svc 5432; do echo 'Waiting for Postgres...'; sleep 2; done;"]
+      
       containers:
       - name: api
         image: 365882068110.dkr.ecr.ap-south-1.amazonaws.com/backend:4
         imagePullPolicy: Always
         env:
-          - name: POSTGRES_CONN_STR
-            value: postgresql://$(POSTGRES_USERNAME):$(POSTGRES_PASSWORD)@postgres-svc:5432/mydatabase
+          # FIX 2: Define base variables FIRST so they can be used in the connection string
+          - name: POSTGRES_DB
+            value: mydatabase
           - name: POSTGRES_USERNAME
             valueFrom:
               secretKeyRef:
@@ -40,20 +48,33 @@ spec:
               secretKeyRef:
                 name: postgres-sec
                 key: password
-          - name: POSTGRES_DB
-            value: mydatabase
+          # The connection string now correctly interpolates the variables defined above
+          - name: POSTGRES_CONN_STR
+            value: postgresql://$(POSTGRES_USERNAME):$(POSTGRES_PASSWORD)@postgres-svc:5432/$(POSTGRES_DB)
+        
         ports:
         - containerPort: 8000
+        
+        # FIX 3: Added resources to prevent OOMKilled errors
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+
+        # FIX 4: Adjusted probes to give Django more time to perform migrations on startup
         livenessProbe: 
           httpGet:
             path: /api
             port: 8000
-          initialDelaySeconds: 2
-          periodSeconds: 5
+          initialDelaySeconds: 20 # Increased from 2s
+          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /api
             port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          initialDelaySeconds: 15 # Increased from 5s
+          periodSeconds: 10
           successThreshold: 1
