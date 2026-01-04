@@ -51,7 +51,7 @@ variable "instance_type" {
 
 variable "key_name" {
   description = "The name of the SSH key pair to access the instance."
-  default     = "user2.pem"
+  default     = "user2"
 }
 
 # IAM Role
