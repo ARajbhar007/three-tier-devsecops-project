@@ -32,4 +32,4 @@ RUN sed -i 's/\r$//' /home/docker/scripts/boot.sh  && \
 
 
 COPY ./ /home/devops-backend
-ENTRYPOINT /home/docker/scripts/boot.sh
+ENTRYPOINT ["/home/docker/scripts/boot.sh"]
