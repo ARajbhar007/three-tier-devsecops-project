@@ -32,7 +32,7 @@ spec:
       
       containers:
       - name: api
-        image: 365882068110.dkr.ecr.ap-south-1.amazonaws.com/backend:1
+        image: 365882068110.dkr.ecr.ap-south-1.amazonaws.com/backend:4
         imagePullPolicy: Always
         env:
           # FIX 2: Define base variables FIRST so they can be used in the connection string
