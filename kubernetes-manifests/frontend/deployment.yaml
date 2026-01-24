@@ -7,12 +7,12 @@ metadata:
     role: frontend
     env: demo
 spec: 
-  replicas: 2 # Increased to 2 for High Availability (HA)
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 1 # Ensuring at least 1 pod is always alive
+      maxUnavailable: 25%
   selector:
     matchLabels: 
       role: frontend
@@ -29,31 +29,6 @@ spec:
         imagePullPolicy: Always
         env:
           - name: REACT_APP_BACKEND_URL
-            value: "http://api.three-tier.svc.cluster.local:8000/api/notes/"
+            value: "http://api.dovz.shop/api/notes/"
         ports:
         - containerPort: 3000
-        
-        # FIX 1: Resource Limits (Prevents Node Crashes)
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
-
-        # FIX 2: Readiness Probe (Ensures traffic only hits "Ready" pods)
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 10
-
-        # FIX 3: Liveness Probe (Restarts pod if it freezes)
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 20
