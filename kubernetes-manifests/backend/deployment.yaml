@@ -28,8 +28,6 @@ spec:
         image: 265178904252.dkr.ecr.ap-south-1.amazonaws.com/backend:4
         imagePullPolicy: Always
         env:
-          - name: POSTGRES_CONN_STR
-            value: postgresql://$(POSTGRES_USERNAME):$(POSTGRES_PASSWORD)@postgres-svc:5432/mydatabase
           - name: POSTGRES_USERNAME
             valueFrom:
               secretKeyRef:
@@ -42,18 +40,22 @@ spec:
                 key: password
           - name: POSTGRES_DB
             value: mydatabase
+          - name: POSTGRES_HOST
+            value: postgres-svc
+          - name: POSTGRES_PORT
+            value: "5432"
         ports:
         - containerPort: 8000
         livenessProbe: 
           httpGet:
             path: /api
             port: 8000
-          initialDelaySeconds: 2
+          initialDelaySeconds: 10
           periodSeconds: 5
         readinessProbe:
           httpGet:
             path: /api
             port: 8000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 5
           successThreshold: 1
