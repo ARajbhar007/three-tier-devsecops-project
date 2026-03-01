@@ -6,7 +6,7 @@ wait_for_db() {
     echo "Waiting for PostgreSQL to be ready..."
     max_attempts=30
     attempt=1
-    while ! python -c "import psycopg2; psycopg2.connect(host='${POSTGRES_HOST}', port=${POSTGRES_PORT}, user='${POSTGRES_USERNAME}', password='${POSTGRES_PASSWORD}', database='${POSTGRES_DB}'") 2>/dev/null; do
+    while ! python -c "import psycopg2; psycopg2.connect(host='${POSTGRES_HOST}', port=${POSTGRES_PORT}, user='${POSTGRES_USERNAME}', password='${POSTGRES_PASSWORD}', database='${POSTGRES_DB}'" 2>/dev/null; do
         if [ $attempt -ge $max_attempts ]; then
             echo "Failed to connect to PostgreSQL after $max_attempts attempts"
             exit 1
