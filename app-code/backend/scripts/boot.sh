@@ -1,15 +1,8 @@
 #!/bin/bash
 
-# Boot script for initializing application
+echo "Starting application..."
 
-# Establish database connection
-# Removed extra closing parenthesis from psycopg2.connect()
-DB_CONNECTION="psycopg2.connect(
-    host='localhost',
-    database='mydb',
-    user='myuser',
-    password='mypassword'
-)"  # Corrected
+# Database connection
+psycopg2.connect(host='${POSTGRES_HOST}', port=${POSTGRES_PORT}, user='${POSTGRES_USERNAME}', password='${POSTGRES_PASSWORD}', database='${POSTGRES_DB}')
 
-# Other startup commands
-
+# Other application code continues...
