@@ -15,7 +15,7 @@ spec:
     spec: 
       containers:
       - name: postgres
-        image: postgres:latest
+        image: postgres:16-alpine
         ports:
         - containerPort: 5432
         env: 
@@ -31,9 +31,27 @@ spec:
                 key: password
           - name: POSTGRES_DB
             value: mydatabase
+          - name: POSTGRES_INITDB_ARGS
+            value: "-c max_connections=200"
         volumeMounts:
           - name: postgres-volume
-            mountPath: /var/lib/postgresql/data
+            mountPath: /var/lib/postgresql
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+          initialDelaySeconds: 10
+          periodSeconds: 5
       volumes: 
       - name: postgres-volume
         persistentVolumeClaim:
