@@ -1,10 +1,10 @@
 #!/bin/bash
-set -e
-# Apply migrations
-# python manage.py makemigrations --noinput
-python manage.py migrate
-python manage.py collectstatic --noinput
-python manage.py runserver 0.0.0.0:8000
 
+# Wait until the database is ready
+until nc -z db 5432; do   
+  echo "Waiting for database..."
+  sleep 2
+done
 
-
+# Run migrations
+./migrate.sh
