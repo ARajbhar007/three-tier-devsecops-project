@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
+metadata:
   name: api
   namespace: three-tier
-  labels: 
+  labels:
     role: api
     env: demo
-spec: 
+spec:
   replicas: 2
-  strategy: 
+  strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 25%
-  selector: 
+  selector:
     matchLabels:
       role: api
   template:
@@ -21,6 +21,10 @@ spec:
       labels:
         role: api
     spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
       imagePullSecrets:
       - name: ecr-registry-secret
       containers:
@@ -46,12 +50,25 @@ spec:
             value: "5432"
         ports:
         - containerPort: 8000
-        livenessProbe: 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 5"]
+        livenessProbe:
           httpGet:
             path: /api
             port: 8000
           initialDelaySeconds: 10
           periodSeconds: 5
+          failureThreshold: 3
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /api
@@ -59,3 +76,5 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 5
           successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 5
