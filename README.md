@@ -10,7 +10,7 @@ The entire lifecycle—from infrastructure provisioning to deployment, security 
 
 ---
 
-## 🎯 Key Objectives
+## 🎯 Key Objective
 
 * Automate AWS infrastructure provisioning using **Terraform (IaC)**
 * Build a secure **CI/CD pipeline using Jenkins**
