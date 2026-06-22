@@ -42,7 +42,7 @@ The entire lifecycle—from infrastructure provisioning to deployment, security 
 
 ### ☁️ Cloud & Infrastructure
 
-* AWS (EKS, VPC, IAM, ALB, Route53)
+* AWS (EKS, VPC, IAM, ALB,)
 * Terraform
 
 ### ⚙️ CI/CD & GitOps
